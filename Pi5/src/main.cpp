@@ -7,34 +7,40 @@
     2) type $cmake .
     3)once cmake compiles without error type $make
     4) this step changes with version
-        -basic test type $./DisplayImage cat.jpg
+        -basic test type $./output
 
 */
 
 #include <stdio.h>
- 
+
+void imgDispTest(void);
+
 using namespace cv;
  
-int main(int argc, char** argv )
+int main(void)
 {
-    if ( argc != 2 )
-    {
-        printf("usage: DisplayImage.out <Image_Path>\n");
-        return -1;
-    }
  
+    imgDispTest();
+ 
+    return 0;
+}
+
+//displays an image for a test
+void imgDispTest(void){
+
+    std::string imagePath = "/home/5team4/Documents/RTCP/RTCP_Image_Quality/Pi5/catv2.png";
     Mat image;
-    image = imread( argv[1], IMREAD_COLOR );
+    image = imread( imagePath, IMREAD_COLOR );
  
     if ( !image.data )
     {
         printf("No image data \n");
-        return -1;
+        return;
     }
     namedWindow("Display Image", WINDOW_AUTOSIZE );
     imshow("Display Image", image);
  
     waitKey(0);
- 
-    return 0;
+
+    return;
 }
