@@ -6,7 +6,8 @@
                 "${workspaceFolder}/**",
                 "/usr/include/opencv4",
                 "/usr/include/opencv4/opencv2/",
-                "/usr/include/opencv4/opencv2/core"
+                "/usr/include/opencv4/opencv2/core",
+                "Pi5/opencv2"
             ],
             "defines": [],
             "compilerPath": "/usr/bin/g++",

@@ -49,13 +49,13 @@
 #  error base.hpp header must be compiled as C++
 #endif
 
-#include "opencv2/opencv_modules.hpp"
+#include "opencv4/opencv2/opencv_modules.hpp"
 
 #include <climits>
 #include <algorithm>
 
-#include "opencv2/core/cvdef.h"
-#include "opencv2/core/cvstd.hpp"
+#include "opencv4/opencv2/core/cvdef.h"
+#include "opencv4/opencv2/core/cvstd.hpp"
 
 namespace cv
 {
@@ -657,8 +657,8 @@ static inline void setUseIPP_NE(bool flag) { setUseIPP_NotExact(flag); }
 
 } // cv
 
-#include "opencv2/core/neon_utils.hpp"
-#include "opencv2/core/vsx_utils.hpp"
-#include "opencv2/core/check.hpp"
+#include "opencv4/opencv2/core/neon_utils.hpp"
+#include "opencv4/opencv2/core/vsx_utils.hpp"
+#include "opencv4/opencv2/core/check.hpp"
 
 #endif //OPENCV_CORE_BASE_HPP

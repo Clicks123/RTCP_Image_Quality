@@ -1,6 +1,5 @@
-
 #include <iostream>
-#include "opencv2/opencv.hpp"
+#include "opencv4/opencv2/opencv.hpp"
 using namespace cv;
 int main()
 {
@@ -12,3 +11,4 @@ int main()
     int k = waitKey(0); // Wait for a keystroke in the window
     return 0;
 }
+///usr/include/opencv4/opencv2/core/neon_utils.hpp

@@ -49,14 +49,14 @@
 #  error core.hpp header must be compiled as C++
 #endif
 
-#include "opencv2/core/cvdef.h"
-#include "opencv2/core/base.hpp"
-#include "opencv2/core/cvstd.hpp"
-#include "opencv2/core/traits.hpp"
-#include "opencv2/core/matx.hpp"
-#include "opencv2/core/types.hpp"
-#include "opencv2/core/mat.hpp"
-#include "opencv2/core/persistence.hpp"
+#include "opencv4/opencv2/core/cvdef.h"
+#include "opencv4/opencv2/core/base.hpp"
+#include "opencv4/opencv2/core/cvstd.hpp"
+#include "opencv4/opencv2/core/traits.hpp"
+#include "opencv4/opencv2/core/matx.hpp"
+#include "opencv4/opencv2/core/types.hpp"
+#include "opencv4/opencv2/core/mat.hpp"
+#include "opencv4/opencv2/core/persistence.hpp"
 
 /**
 @defgroup core Core functionality
@@ -3345,10 +3345,10 @@ struct ParamType<_Tp, typename std::enable_if< std::is_enum<_Tp>::value >::type>
 
 } //namespace cv
 
-#include "opencv2/core/operations.hpp"
-#include "opencv2/core/cvstd.inl.hpp"
-#include "opencv2/core/utility.hpp"
-#include "opencv2/core/optim.hpp"
-#include "opencv2/core/ovx.hpp"
+#include "opencv4/opencv2/core/operations.hpp"
+#include "opencv4/opencv2/core/cvstd.inl.hpp"
+#include "opencv4/opencv2/core/utility.hpp"
+#include "opencv4/opencv2/core/optim.hpp"
+#include "opencv4/opencv2/core/ovx.hpp"
 
 #endif /*OPENCV_CORE_HPP*/
