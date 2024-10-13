@@ -1,0 +1,7 @@
+[
+{
+  "directory": "/home/5team4/Documents/RTCP/RTCP_Image_Quality/build",
+  "command": "/usr/bin/aarch64-linux-gnu-g++ -I\"/home/5team4/Documents/RTCP/RTCP_Image_Quality/Pi5/(\" -I\"/home/5team4/Documents/RTCP/RTCP_Image_Quality/Pi5/\\$$/usr/include/opencv4\" -I\"/home/5team4/Documents/RTCP/RTCP_Image_Quality/Pi5/)\" -g -o CMakeFiles/opencv_example.dir/src/main.cpp.o -c /home/5team4/Documents/RTCP/RTCP_Image_Quality/Pi5/src/main.cpp",
+  "file": "/home/5team4/Documents/RTCP/RTCP_Image_Quality/Pi5/src/main.cpp"
+}
+]

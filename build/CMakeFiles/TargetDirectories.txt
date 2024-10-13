@@ -1,0 +1,3 @@
+/home/5team4/Documents/RTCP/RTCP_Image_Quality/build/CMakeFiles/opencv_example.dir
+/home/5team4/Documents/RTCP/RTCP_Image_Quality/build/CMakeFiles/edit_cache.dir
+/home/5team4/Documents/RTCP/RTCP_Image_Quality/build/CMakeFiles/rebuild_cache.dir

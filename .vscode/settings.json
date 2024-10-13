@@ -1,0 +1,5 @@
+{
+    "C_Cpp.errorSquiggles": "enabled",
+    "C_Cpp.default.compilerPath": "/usr/bin/g++-12",
+    "cmake.sourceDirectory": "/home/5team4/Documents/RTCP/RTCP_Image_Quality/Pi5"
+}

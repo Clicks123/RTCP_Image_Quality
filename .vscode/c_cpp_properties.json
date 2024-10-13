@@ -10,13 +10,13 @@
                 "Pi5/opencv2"
             ],
             "defines": [],
-            "compilerPath": "/usr/bin/g++",
             "cStandard": "c17",
             "cppStandard": "gnu++17",
             "intelliSenseMode": "linux-gcc-arm64",
             "forcedInclude": [
                 "/usr/include/opencv4/opencv2/opencv_modules.hpp"
-            ]
+            ],
+            "compilerArgs": []
         }
     ],
     "version": 4

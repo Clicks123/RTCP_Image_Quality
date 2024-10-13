@@ -1,14 +1,40 @@
 #include <iostream>
 #include "opencv4/opencv2/opencv.hpp"
+//note must build file using termnial 
+/*
+
+    1) go into Pi5 directory in terminal
+    2) type $cmake .
+    3)once cmake compiles without error type $make
+    4) this step changes with version
+        -basic test type $./DisplayImage cat.jpg
+
+*/
+
+#include <stdio.h>
+ 
 using namespace cv;
-int main()
+ 
+int main(int argc, char** argv )
 {
-
-    std::string image_path = "/home/5team4/Documents/RTCP/RTCP_Image_Quality/cat.jpg";
-    Mat img = imread(image_path, IMREAD_COLOR);
-
-    imshow("Display window", img);
-    int k = waitKey(0); // Wait for a keystroke in the window
+    if ( argc != 2 )
+    {
+        printf("usage: DisplayImage.out <Image_Path>\n");
+        return -1;
+    }
+ 
+    Mat image;
+    image = imread( argv[1], IMREAD_COLOR );
+ 
+    if ( !image.data )
+    {
+        printf("No image data \n");
+        return -1;
+    }
+    namedWindow("Display Image", WINDOW_AUTOSIZE );
+    imshow("Display Image", image);
+ 
+    waitKey(0);
+ 
     return 0;
 }
-///usr/include/opencv4/opencv2/core/neon_utils.hpp
