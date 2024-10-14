@@ -425,8 +425,12 @@ CMakeFiles/output.dir/src/main.cpp.o: src/main.cpp \
   /usr/include/opencv4/opencv2/video.hpp \
   /usr/include/opencv4/opencv2/video/tracking.hpp \
   /usr/include/opencv4/opencv2/video/background_segm.hpp \
-  /usr/include/opencv4/opencv2/videoio.hpp
+  /usr/include/opencv4/opencv2/videoio.hpp \
+  /usr/include/opencv4/opencv2/core/core.hpp \
+  /usr/include/opencv4/opencv2/stitching.hpp
 
+
+/usr/include/opencv4/opencv2/core/core.hpp:
 
 /usr/include/opencv4/opencv2/stitching/detail/seam_finders.hpp:
 

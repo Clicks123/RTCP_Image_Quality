@@ -147,6 +147,8 @@ output: /usr/lib/aarch64-linux-gnu/libopencv_flann.so.4.6.0
 output: /usr/lib/aarch64-linux-gnu/libopencv_photo.so.4.6.0
 output: /usr/lib/aarch64-linux-gnu/libopencv_imgproc.so.4.6.0
 output: /usr/lib/aarch64-linux-gnu/libopencv_core.so.4.6.0
+output: /usr/lib/gcc/aarch64-linux-gnu/12/libgomp.so
+output: /usr/lib/aarch64-linux-gnu/libpthread.a
 output: CMakeFiles/output.dir/link.txt
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/home/5team4/Documents/RTCP/RTCP_Image_Quality/Pi5/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Linking CXX executable output"
 	$(CMAKE_COMMAND) -E cmake_link_script CMakeFiles/output.dir/link.txt --verbose=$(VERBOSE)
