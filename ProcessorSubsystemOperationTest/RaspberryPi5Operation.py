@@ -14,6 +14,4 @@ ser = serial.Serial(
         timeout=1
 )
 
-while True:
-    ser.write("Hello from Pi 5\n")
-    time.sleep(1)
+ser.write("Hello from Pi 5\n")
