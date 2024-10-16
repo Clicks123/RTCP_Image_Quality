@@ -27,6 +27,7 @@ using namespace std;
 
 int main(int argc, char *argv[])
 {
+
     // Destroy the windows
     cv::destroyAllWindows();
     if(argc < 2){
@@ -126,6 +127,7 @@ void DispLiveWebcam(void){
 void Disp2LiveWebcam(void){
        // Open the first webcam
     cv::VideoCapture cap1(0, cv::CAP_V4L2); // Adjust the index if necessary
+
     if (!cap1.isOpened()) {
         std::cerr << "Error: Could not open the first webcam" << std::endl;
         return;
