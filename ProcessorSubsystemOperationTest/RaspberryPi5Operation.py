@@ -14,4 +14,4 @@ ser = serial.Serial(
         timeout=1
 )
 
-ser.write("Hello from Pi 5\n")
+ser.write(0b010101)
