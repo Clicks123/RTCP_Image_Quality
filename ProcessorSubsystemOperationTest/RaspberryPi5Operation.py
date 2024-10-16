@@ -1,4 +1,4 @@
-from gpiozero import led
+from gpiozero import LED
 import serial
 import time
 
