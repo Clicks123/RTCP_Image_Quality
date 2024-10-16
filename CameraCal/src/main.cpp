@@ -11,7 +11,7 @@
 #include <opencv2/imgcodecs.hpp>
 #include <opencv2/videoio.hpp>
 #include <opencv2/highgui.hpp>
-#include "opencv2/objdetect/charuco_detector.hpp"
+//#include "opencv2/objdetect/charuco_detector.hpp"
 
 using namespace cv;
 using namespace std;
