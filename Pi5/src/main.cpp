@@ -3,8 +3,8 @@
 #include <opencv2/core/core.hpp>
 #include <opencv2/stitching.hpp>
 #include <vector>
-#include "config2/cameraMatrix.xml"
-#include "config2/dist.xml"
+//#include "config2/cameraMatrix.xml"
+//#include "config2/dist.xml"
 //note must build file using termnial 
 /*
 
@@ -89,6 +89,10 @@ void DispLiveWebcam(void){
 
     
     cv::VideoCapture cap(0, cv::CAP_V4L2); // Adjust the index if necessary
+
+    cv::namedWindow("Live", cv::WINDOW_NORMAL);
+
+    cv::resizeWindow("Live", 1920,1080);
 
     if (!cap.isOpened()) {
         std::cerr << "Error: Could not open the first webcam" << std::endl;
