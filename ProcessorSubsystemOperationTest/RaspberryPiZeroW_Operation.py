@@ -6,7 +6,7 @@ led=LED(17)
 led.on()
 
 ser = serial.Serial(
-        port='/dev/ttyS0',
+        port='/dev/serial0',
         baudrate = 9600,
         parity=serial.PARITY_NONE,
         stopbits=serial.STOPBITS_ONE,
