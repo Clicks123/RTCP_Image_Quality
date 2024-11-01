@@ -5,7 +5,7 @@
 #include <termios.h>
 #include <unistd.h>
 
-int main(void){
+int main1(void){
     int serial_port = open("/dev/serial0", O_RDWR);
 
     // Check for errors

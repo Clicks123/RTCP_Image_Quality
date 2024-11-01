@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.10)
-project( output )
-add_executable( output  ZeroW_UART_Comm.cpp )
-add_executable( output  Pi5_UART_Comm.cpp )
+project( serial_comm )
+add_executable( serialZeroW  ZeroW_UART_Comm.cpp )
+add_executable( serialPi5  Pi5_UART_Comm.cpp )
 endif()
