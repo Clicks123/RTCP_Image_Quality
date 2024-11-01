@@ -58,4 +58,6 @@ int main(){
     {
         write(serial_port, msg, sizeof(msg));
     }
+
+    return 0;
 }

@@ -71,4 +71,6 @@ int main(){
     {
         printf("Message received: %c\n", read_buf);
     }
+
+    return 0;
 }
