@@ -6,7 +6,7 @@
 #include <unistd.h>
 
 int main(){
-    int serial_port = open("/dev/serial0", ORDWR);
+    int serial_port = open("/dev/serial0", O_RDWR);
 
     // Check for errors
     if (serial_port < 0)
