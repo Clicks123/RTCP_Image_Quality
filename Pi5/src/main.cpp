@@ -3,6 +3,8 @@
 #include <opencv2/core/core.hpp>
 #include <opencv2/stitching.hpp>
 #include <vector>
+//#include "config2/cameraMatrix.xml"
+//#include "config2/dist.xml"
 //note must build file using termnial 
 /*
 
@@ -27,6 +29,7 @@ using namespace std;
 
 int main(int argc, char *argv[])
 {
+
     // Destroy the windows
     cv::destroyAllWindows();
     if(argc < 2){
@@ -83,23 +86,18 @@ void imgDispTest(void){
 //outdated solution for webcam capture
 void DispLiveWebcam(void){
         Mat frame;
-    //--- INITIALIZE VIDEOCAPTURE
-    VideoCapture cap;
-    // open the default camera using default API
-    cap.open(0);
-    // OR advance usage: select any API backend
-    int deviceID = 0;             // 0 = open default camera
-    int apiID = cv::CAP_ANY;      // 0 = autodetect default API
-    // open selected camera using selected API
-    cap.open(deviceID + apiID);
-    // check if we succeeded
+
+    
+    cv::VideoCapture cap(0, cv::CAP_V4L2); // Adjust the index if necessary
+
+    cv::namedWindow("Live", cv::WINDOW_NORMAL);
+
+    cv::resizeWindow("Live", 1920,1080);
+
     if (!cap.isOpened()) {
-        cerr << "ERROR! Unable to open camera\n";
+        std::cerr << "Error: Could not open the first webcam" << std::endl;
         return;
     }
-    //--- GRAB AND WRITE LOOP
-    cout << "Start grabbing" << endl
-        << "Press any key to terminate" << endl;
     for (;;)
     {
         // wait for a new frame from camera and store it into 'frame'
@@ -126,6 +124,7 @@ void DispLiveWebcam(void){
 void Disp2LiveWebcam(void){
        // Open the first webcam
     cv::VideoCapture cap1(0, cv::CAP_V4L2); // Adjust the index if necessary
+
     if (!cap1.isOpened()) {
         std::cerr << "Error: Could not open the first webcam" << std::endl;
         return;
