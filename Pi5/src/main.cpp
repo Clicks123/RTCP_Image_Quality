@@ -224,3 +224,56 @@ void Stich2CAM(void){
     cv::destroyAllWindows();
     return;
 }
+
+void surf(void){
+    // Open two webcam feeds
+    cv::VideoCapture cap1(0); // First webcam
+    cv::VideoCapture cap2(1); // Second webcam
+
+    if (!cap1.isOpened() || !cap2.isOpened()) {
+        std::cerr << "Error: Could not open webcams." << std::endl;
+        return -1;
+    }
+
+    cv::Mat frame1, frame2;
+    cv::Mat stitchedImage;
+
+    while (true) {
+        // Capture frames from both webcams
+        cap1 >> frame1;
+        cap2 >> frame2;
+
+        if (frame1.empty() || frame2.empty()) {
+            std::cerr << "Error: Could not grab frames." << std::endl;
+            break;
+        }
+
+        // Vector to hold images for stitching
+        std::vector<cv::Mat> images = {frame1, frame2};
+
+        // Stitcher object
+        cv::Ptr<cv::Stitcher> stitcher = cv::Stitcher::create();
+        cv::Stitcher::Status status = stitcher->stitch(images, stitchedImage);
+
+        if (status != cv::Stitcher::OK) {
+            std::cerr << "Error during stitching: " << int(status) << std::endl;
+        } else {
+            // Show the stitched image
+            cv::imshow("Stitched Image", stitchedImage);
+        }
+
+        // Display the original frames for reference
+        cv::imshow("Webcam 1", frame1);
+        cv::imshow("Webcam 2", frame2);
+
+        // Break loop on 'q' key press
+        if (cv::waitKey(30) >= 0) break;
+    }
+
+    // Release webcams and destroy windows
+    cap1.release();
+    cap2.release();
+    cv::destroyAllWindows();
+    
+return;
+    }
