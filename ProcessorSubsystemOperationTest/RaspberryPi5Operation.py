@@ -6,12 +6,15 @@ led=LED(24)
 led.on()
 
 ser = serial.Serial(
-        port='/dev/ttyS0',
+        port='/dev/serial0',
         baudrate = 9600,
         parity=serial.PARITY_NONE,
         stopbits=serial.STOPBITS_ONE,
         bytesize=serial.EIGHTBITS,
         timeout=1
 )
-
-ser.write(0b010101)
+counter=0
+while True:
+        ser.write('Hello from Pi 5: %d\n'%(counter))
+        time.sleep(1)
+        counter+=1
