@@ -5,7 +5,7 @@
 #include <termios.h>
 #include <unistd.h>
 
-int main(){
+int main1(void){
     int serial_port = open("/dev/serial0", O_RDWR);
 
     // Check for errors
@@ -71,4 +71,6 @@ int main(){
     {
         printf("Message received: %c\n", read_buf);
     }
+
+    return 0;
 }

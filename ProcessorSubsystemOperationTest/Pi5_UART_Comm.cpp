@@ -5,7 +5,7 @@
 #include <termios.h>
 #include <unistd.h>
 
-int main(){
+int main2(void){
     int serial_port = open("/dev/serial0", O_RDWR);
 
     // Check for errors
@@ -58,4 +58,6 @@ int main(){
     {
         write(serial_port, msg, sizeof(msg));
     }
+
+    return 0;
 }
