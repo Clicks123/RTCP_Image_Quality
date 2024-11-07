@@ -2,6 +2,8 @@
 #include "opencv4/opencv2/opencv.hpp"
 #include <opencv2/core/core.hpp>
 #include <opencv2/stitching.hpp>
+#include <opencv2/xfeatures2d.hpp>
+#include <opencv2/xfeatures2d/nonfree.hpp>
 #include <vector>
 //#include "config2/cameraMatrix.xml"
 //#include "config2/dist.xml"
@@ -22,9 +24,11 @@ void imgDispTest(void);
 void DispLiveWebcam(void);
 void Disp2LiveWebcam(void);
 void Stich2CAM(void);
+void surf(void);
 
 using namespace cv;
 using namespace std;
+using namespace cv::xfeatures2d;
 
 
 int main(int argc, char *argv[])
@@ -47,6 +51,9 @@ int main(int argc, char *argv[])
         Disp2LiveWebcam();
     }
     else if(strcmp(argv[1], "PANO") == 0){
+        Stich2CAM();
+    }    
+    else if(strcmp(argv[1], "SURF") == 0){
         Stich2CAM();
     }
     else{
@@ -226,54 +233,77 @@ void Stich2CAM(void){
 }
 
 void surf(void){
-    // Open two webcam feeds
-    cv::VideoCapture cap1(0); // First webcam
-    cv::VideoCapture cap2(1); // Second webcam
+    VideoCapture cap1(0); // Open the first webcam
+    VideoCapture cap2(1); // Open the second webcam
 
     if (!cap1.isOpened() || !cap2.isOpened()) {
-        std::cerr << "Error: Could not open webcams." << std::endl;
-        return -1;
+        cerr << "Error: Could not open webcam(s)." << endl;
+        return;
     }
 
-    cv::Mat frame1, frame2;
-    cv::Mat stitchedImage;
+    Mat frame1, frame2, stitchedImage;
 
     while (true) {
-        // Capture frames from both webcams
         cap1 >> frame1;
         cap2 >> frame2;
 
         if (frame1.empty() || frame2.empty()) {
-            std::cerr << "Error: Could not grab frames." << std::endl;
+            cerr << "Error: Could not grab frames." << endl;
             break;
         }
 
-        // Vector to hold images for stitching
-        std::vector<cv::Mat> images = {frame1, frame2};
+        // Convert images to grayscale
+        Mat gray1, gray2;
+        cvtColor(frame1, gray1, COLOR_BGR2GRAY);
+        cvtColor(frame2, gray2, COLOR_BGR2GRAY);
 
-        // Stitcher object
-        cv::Ptr<cv::Stitcher> stitcher = cv::Stitcher::create();
-        cv::Stitcher::Status status = stitcher->stitch(images, stitchedImage);
+        // Detect keypoints and compute descriptors
+        Ptr<SURF> detector = SURF::create(400);
+        vector<KeyPoint> keypoints1, keypoints2;
+        Mat descriptors1, descriptors2;
 
-        if (status != cv::Stitcher::OK) {
-            std::cerr << "Error during stitching: " << int(status) << std::endl;
-        } else {
-            // Show the stitched image
-            cv::imshow("Stitched Image", stitchedImage);
+        detector->detectAndCompute(gray1, noArray(), keypoints1, descriptors1);
+        detector->detectAndCompute(gray2, noArray(), keypoints2, descriptors2);
+
+        // Match descriptors using FLANN matcher
+        FlannBasedMatcher matcher;
+        vector<DMatch> matches;
+        matcher.match(descriptors1, descriptors2, matches);
+
+        // Sort matches by distance
+        sort(matches.begin(), matches.end());
+
+        // Select good matches (e.g., top 10% of matches)
+        const int numGoodMatches = matches.size() * 0.1;
+        vector<DMatch> goodMatches(matches.begin(), matches.begin() + numGoodMatches);
+
+        // Draw matches
+        Mat imgMatches;
+        drawMatches(frame1, keypoints1, frame2, keypoints2, goodMatches, imgMatches);
+        imshow("Matches", imgMatches);
+
+        // Extract location of good matches
+        vector<Point2f> points1, points2;
+        for (size_t i = 0; i < goodMatches.size(); i++) {
+            points1.push_back(keypoints1[goodMatches[i].queryIdx].pt);
+            points2.push_back(keypoints2[goodMatches[i].trainIdx].pt);
         }
 
-        // Display the original frames for reference
-        cv::imshow("Webcam 1", frame1);
-        cv::imshow("Webcam 2", frame2);
+        // Find homography
+        Mat H = findHomography(points2, points1, RANSAC);
 
-        // Break loop on 'q' key press
-        if (cv::waitKey(30) >= 0) break;
+        // Warp image
+        warpPerspective(frame2, stitchedImage, H, Size(frame1.cols + frame2.cols, frame1.rows));
+        Mat half(stitchedImage, Rect(0, 0, frame1.cols, frame1.rows));
+        frame1.copyTo(half);
+
+        // Display the stitched image
+        imshow("Stitched Image", stitchedImage);
+
+        if (waitKey(30) >= 0) break;
     }
 
-    // Release webcams and destroy windows
     cap1.release();
     cap2.release();
-    cv::destroyAllWindows();
-    
-return;
-    }
+}
+
