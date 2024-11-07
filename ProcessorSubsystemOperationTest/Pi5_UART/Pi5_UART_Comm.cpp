@@ -4,9 +4,10 @@
 #include <errno.h>
 #include <termios.h>
 #include <unistd.h>
-#include "UARTcomm.h"
 
-int Pi5UART(void){
+//ONLY RUN ON THE PI 5
+
+int main(void){
     int serial_port = open("/dev/serial0", O_RDWR);
 
     // Check for errors
