@@ -71,7 +71,7 @@ int main(void){
 
     while (1)
     {
-        printf("Message received: %c\n", read_buf);
+        printf("Message received: %s\n", read_buf);
     }
 
     return 0;
