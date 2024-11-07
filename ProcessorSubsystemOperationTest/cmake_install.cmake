@@ -1,4 +1,4 @@
-# Install script for directory: /home/5team4/Documents/RTCP/RTCP_Image_Quality/ProcessorSubsystemTest
+# Install script for directory: /home/5team4/Documents/RTCP/RTCP_Image_Quality/ProcessorSubsystemOperationTest
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)
@@ -50,5 +50,5 @@ endif()
 
 string(REPLACE ";" "\n" CMAKE_INSTALL_MANIFEST_CONTENT
        "${CMAKE_INSTALL_MANIFEST_FILES}")
-file(WRITE "/home/5team4/Documents/RTCP/RTCP_Image_Quality/ProcessorSubsystemTest/${CMAKE_INSTALL_MANIFEST}"
+file(WRITE "/home/5team4/Documents/RTCP/RTCP_Image_Quality/ProcessorSubsystemOperationTest/${CMAKE_INSTALL_MANIFEST}"
      "${CMAKE_INSTALL_MANIFEST_CONTENT}")
