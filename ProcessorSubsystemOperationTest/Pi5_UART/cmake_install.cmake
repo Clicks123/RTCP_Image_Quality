@@ -1,4 +1,4 @@
-# Install script for directory: /home/5team4/Documents/RTCP/RTCP_Image_Quality/ProcessorSubsystemOperationTest
+# Install script for directory: /home/5team4/Documents/RTCP/RTCP_Image_Quality/ProcessorSubsystemOperationTest/Pi5_UART
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)
