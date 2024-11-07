@@ -8,7 +8,7 @@
 //ONLY RUN ON THE ZERO W
 
 int main(void){
-    int serial_port = open("/dev/ttyAMA0", O_RDWR);
+    int serial_port = open("/dev/serial0", O_RDWR);
 
     // Check for errors
     if (serial_port < 0)
