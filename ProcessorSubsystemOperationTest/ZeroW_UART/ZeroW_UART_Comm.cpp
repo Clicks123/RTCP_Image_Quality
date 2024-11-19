@@ -4,9 +4,10 @@
 #include <errno.h>
 #include <termios.h>
 #include <unistd.h>
-#include "UARTcomm.h"
 
-int ZeroWUART(void){
+//ONLY RUN ON THE ZERO W
+
+int main(void){
     int serial_port = open("/dev/serial0", O_RDWR);
 
     // Check for errors
@@ -70,7 +71,7 @@ int ZeroWUART(void){
 
     while (1)
     {
-        printf("Message received: %c\n", read_buf);
+        printf("Message received: %s\n", read_buf);
     }
 
     return 0;
