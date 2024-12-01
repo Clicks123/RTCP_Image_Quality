@@ -4,16 +4,19 @@
 #include <errno.h>
 #include <termios.h>
 #include <unistd.h>
+#include "lz4.h"
 
 //ONLY RUN ON THE ZERO W
 
 int main(void){
+    //UART Setup
     int serial_port = open("/dev/serial0", O_RDWR);
 
     // Check for errors
     if (serial_port < 0)
     {
         printf("Error %i from open: %s\n", errno, strerror(errno));
+        return 0;
     }
 
     struct termios tty;
@@ -22,6 +25,7 @@ int main(void){
     if (tcgetattr(serial_port, &tty) != 0)
     {
         printf("Error %i from tcgetattr: %s\n", errno, strerror(errno));
+        return 0;
     }
 
     // Setting tty's settings
@@ -56,6 +60,7 @@ int main(void){
     if (tcsetattr(serial_port, TCSANOW, &tty) != 0)
     {
         printf("Error %i from tcsetattr: %s\n", errno, strerror(errno));
+        return 0;
     }
 
     // Read the serial port
@@ -67,6 +72,7 @@ int main(void){
     if (n < 0)
     {
         printf("Error reading: %s", strerror(errno));
+        return 0;
     }
 
     while (1)
