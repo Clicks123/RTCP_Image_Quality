@@ -2,8 +2,9 @@
 #include "opencv4/opencv2/opencv.hpp"
 #include <opencv2/core/core.hpp>
 #include <opencv2/stitching.hpp>
+//#include <opencv/opencv_contrib-4.x/modules/xfeatures2d/include/opencv2/xfeatures2d.hpp>
 #include <opencv2/xfeatures2d.hpp>
-#include <opencv2/xfeatures2d/nonfree.hpp>
+//#include <opencv2/xfeatures2d/nonfree.hpp>
 #include <vector>
 //#include "config2/cameraMatrix.xml"
 //#include "config2/dist.xml"
@@ -24,11 +25,28 @@ void imgDispTest(void);
 void DispLiveWebcam(void);
 void Disp2LiveWebcam(void);
 void Stich2CAM(void);
-void surf(void);
+int surf(void);
+void detectAndComputeSURF(Mat& img, vector<KeyPoint>& keypoints, Mat& descriptors);
 
 using namespace cv;
-using namespace std;
 using namespace cv::xfeatures2d;
+using namespace std;
+
+
+Mat captureFrame(int cameraIndex) {
+    VideoCapture cap(cameraIndex);
+    if (!cap.isOpened()) {
+        cerr << "Error: Failed to open camera " << cameraIndex << endl;
+        return Mat();
+    }
+
+    Mat frame;
+    cap >> frame;
+    if (frame.empty()) {
+        cerr << "Error: Failed to capture frame from camera " << cameraIndex << endl;
+    }
+    return frame;
+}
 
 
 int main(int argc, char *argv[])
@@ -54,7 +72,7 @@ int main(int argc, char *argv[])
         Stich2CAM();
     }    
     else if(strcmp(argv[1], "SURF") == 0){
-        Stich2CAM();
+        surf();
     }
     else{
         printf("Unknown argument %s\n", argv[1]);
@@ -232,78 +250,90 @@ void Stich2CAM(void){
     return;
 }
 
-void surf(void){
-    VideoCapture cap1(0); // Open the first webcam
-    VideoCapture cap2(1); // Open the second webcam
+int surf(void){
+    try {
+        // Capture frames from two cameras
+        Mat img1 = captureFrame(0);
+        Mat img2 = captureFrame(1);
 
-    if (!cap1.isOpened() || !cap2.isOpened()) {
-        cerr << "Error: Could not open webcam(s)." << endl;
-        return;
-    }
-
-    Mat frame1, frame2, stitchedImage;
-
-    while (true) {
-        cap1 >> frame1;
-        cap2 >> frame2;
-
-        if (frame1.empty() || frame2.empty()) {
-            cerr << "Error: Could not grab frames." << endl;
-            break;
+        if (img1.empty() || img2.empty()) {
+            cerr << "Error: One or both images are empty." << endl;
+            return -1;
         }
 
-        // Convert images to grayscale
-        Mat gray1, gray2;
-        cvtColor(frame1, gray1, COLOR_BGR2GRAY);
-        cvtColor(frame2, gray2, COLOR_BGR2GRAY);
-
-        // Detect keypoints and compute descriptors
-        Ptr<SURF> detector = SURF::create(400);
+        // Detect features and compute descriptors using SURF
         vector<KeyPoint> keypoints1, keypoints2;
         Mat descriptors1, descriptors2;
+        detectAndComputeSURF(img1, keypoints1, descriptors1);
+        detectAndComputeSURF(img2, keypoints2, descriptors2);
 
-        detector->detectAndCompute(gray1, noArray(), keypoints1, descriptors1);
-        detector->detectAndCompute(gray2, noArray(), keypoints2, descriptors2);
+        if (keypoints1.empty() || keypoints2.empty()) {
+            cerr << "Error: No keypoints found in one or both images." << endl;
+            return -1;
+        }
 
-        // Match descriptors using FLANN matcher
-        FlannBasedMatcher matcher;
+        // Match features using BFMatcher
+        BFMatcher matcher(NORM_L2);
         vector<DMatch> matches;
         matcher.match(descriptors1, descriptors2, matches);
+
+        // Check if matches are found
+        if (matches.empty()) {
+            cerr << "Error: No matches found." << endl;
+            return -1;
+        }
 
         // Sort matches by distance
         sort(matches.begin(), matches.end());
 
-        // Select good matches (e.g., top 10% of matches)
-        const int numGoodMatches = matches.size() * 0.1;
-        vector<DMatch> goodMatches(matches.begin(), matches.begin() + numGoodMatches);
-
         // Draw matches
         Mat imgMatches;
-        drawMatches(frame1, keypoints1, frame2, keypoints2, goodMatches, imgMatches);
+        drawMatches(img1, keypoints1, img2, keypoints2, matches, imgMatches);
         imshow("Matches", imgMatches);
+        waitKey();
 
-        // Extract location of good matches
-        vector<Point2f> points1, points2;
-        for (size_t i = 0; i < goodMatches.size(); i++) {
-            points1.push_back(keypoints1[goodMatches[i].queryIdx].pt);
-            points2.push_back(keypoints2[goodMatches[i].trainIdx].pt);
+        // Use RANSAC to find a homography matrix
+        vector<Point2f> pts1, pts2;
+        for (const auto& match : matches) {
+            pts1.push_back(keypoints1[match.queryIdx].pt);
+            pts2.push_back(keypoints2[match.trainIdx].pt);
         }
 
-        // Find homography
-        Mat H = findHomography(points2, points1, RANSAC);
+        if (pts1.size() < 4 || pts2.size() < 4) {
+            cerr << "Error: Not enough points for homography." << endl;
+            return -1;
+        }
 
-        // Warp image
-        warpPerspective(frame2, stitchedImage, H, Size(frame1.cols + frame2.cols, frame1.rows));
-        Mat half(stitchedImage, Rect(0, 0, frame1.cols, frame1.rows));
-        frame1.copyTo(half);
+        Mat H = findHomography(pts1, pts2, RANSAC);
 
-        // Display the stitched image
-        imshow("Stitched Image", stitchedImage);
+        if (H.empty()) {
+            cerr << "Error: Homography matrix is empty." << endl;
+            return -1;
+        }
 
-        if (waitKey(30) >= 0) break;
+        // Stitch images together
+        Mat result;
+        warpPerspective(img1, result, H, Size(img1.cols + img2.cols, img1.rows));
+        Mat half(result, Rect(0, 0, img2.cols, img2.rows));
+        img2.copyTo(half);
+
+        imshow("Stitched Image", result);
+        waitKey();
+
+    } catch (const exception& ex) {
+        cerr << "Error: " << ex.what() << endl;
+        return -1;
     }
 
-    cap1.release();
-    cap2.release();
+    return 0;
 }
 
+
+void detectAndComputeSURF(Mat& img, vector<KeyPoint>& keypoints, Mat& descriptors) {
+    Ptr<SURF> detector = SURF::create(400);
+    if (img.empty()) {
+        cerr << "Error: Empty image passed to detectAndComputeSURF" << endl;
+        return;
+    }
+    detector->detectAndCompute(img, noArray(), keypoints, descriptors);
+}
