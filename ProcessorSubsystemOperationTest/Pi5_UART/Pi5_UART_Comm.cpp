@@ -4,6 +4,11 @@
 #include <errno.h>
 #include <termios.h>
 #include <unistd.h>
+#include <iostream>
+#include "opencv4/opencv2/opencv.hpp"
+#include <opencv2/core/core.hpp>
+#include <opencv2/stitching.hpp>
+#include <vector>
 #include "lz4.h"
 
 //ONLY RUN ON THE PI 5
@@ -59,12 +64,18 @@ int main(void){
         return 0;
     }
 
-    // Send a message
-    unsigned char msg[] = "Hello from Pi 5";
-    while (1)
-    {
-        write(serial_port, msg, sizeof(msg));
-    }
+    // // Send a message
+    // unsigned char msg[] = "Hello from Pi 5";
+    // while (1)
+    // {
+    //     write(serial_port, msg, sizeof(msg));
+    // }
+
+    std::string imagePath = "/home/5team4/Documents/RTCP/RTCP_Image_Quality/Pi5/catv2.png";
+    Mat image;
+    image = imread( imagePath, IMREAD_COLOR );
+
+    write(serial_port, image, sizeof(image));
 
     return 0;
 }
