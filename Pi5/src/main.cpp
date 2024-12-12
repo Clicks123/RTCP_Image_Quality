@@ -24,9 +24,12 @@
 void imgDispTest(void);
 void DispLiveWebcam(void);
 void Disp2LiveWebcam(void);
+void Disp3LiveWebcam(void);
 void Stich2CAM(void);
-int surf(void);
-void detectAndComputeSURF(Mat& img, vector<KeyPoint>& keypoints, Mat& descriptors);
+//Mat stitchImages(const vector<Mat>& images);
+//vector<Mat> captureImagesFromCameras(VideoCapture& cap1, VideoCapture& cap2, VideoCapture& cap3);
+void surf(void);
+//void detectAndComputeSURF(Mat& img, vector<KeyPoint>& keypoints, Mat& descriptors);
 
 using namespace cv;
 using namespace cv::xfeatures2d;
@@ -68,11 +71,14 @@ int main(int argc, char *argv[])
     else if(strcmp(argv[1], "CAM2") == 0){
         Disp2LiveWebcam();
     }
+    else if(strcmp(argv[1], "CAM3") == 0){
+        Disp3LiveWebcam();
+    }
     else if(strcmp(argv[1], "PANO") == 0){
         Stich2CAM();
     }    
     else if(strcmp(argv[1], "SURF") == 0){
-        surf();
+        Stich2CAM();
     }
     else{
         printf("Unknown argument %s\n", argv[1]);
@@ -203,19 +209,106 @@ void Disp2LiveWebcam(void){
 
 }
 
+
+void Disp3LiveWebcam(void){
+       // Open the first webcam
+    cv::VideoCapture cap1(0, cv::CAP_V4L2); // Adjust the index if necessary
+
+    if (!cap1.isOpened()) {
+        std::cerr << "Error: Could not open the first webcam" << std::endl;
+        return;
+    }
+
+    // Open the second webcam
+    cv::VideoCapture cap2(2, cv::CAP_V4L2); // Adjust the index if necessary
+    if (!cap2.isOpened()) {
+        std::cerr << "Error: Could not open the second webcam" << std::endl;
+        return;
+    }
+
+    cv::VideoCapture cap3(4, cv::CAP_V4L2); // Adjust the index if necessary
+    if (!cap3.isOpened()) {
+        std::cerr << "Error: Could not open the third webcam" << std::endl;
+        return;
+    }
+
+    // Create windows to display the video streams
+    cv::namedWindow("Webcam 1", cv::WINDOW_NORMAL);
+    cv::namedWindow("Webcam 2", cv::WINDOW_NORMAL);
+    cv::namedWindow("Webcam 3", cv::WINDOW_NORMAL);
+
+    cv::resizeWindow("Webcam 1", 1920,1080);
+    cv::resizeWindow("Webcam 2", 1920,1080);
+    cv::resizeWindow("Webcam 3", 1920,1080);
+
+
+    // Set fps to 30fps
+    cap1.set(cv::CAP_PROP_FPS, 30);
+    cap2.set(cv::CAP_PROP_FPS, 30);
+    cap3.set(cv::CAP_PROP_FPS, 30);
+    
+
+    while (true) {
+        cv::Mat frame1, frame2, frame3;
+
+        // Capture a frame from each webcam
+        cap1 >> frame1;
+        cap2 >> frame2;
+        cap3 >> frame3;
+
+
+
+        // Check if frames are empty
+        /*if (frame1.empty() || frame2.empty()) {
+            std::cerr << "Error: Could not capture frames" << std::endl;
+            break;
+        }*/
+
+        // Display the window frames
+        cv::imshow("Webcam 1", frame1);
+        cv::imshow("Webcam 2", frame2);
+        cv::imshow("Webcam 3", frame3);
+
+        // Exit the loop if 'q' is pressed
+        if (cv::pollKey() == 'q') {
+            break;
+        }
+    }
+
+    // Release the video captures
+    cap1.release();
+    cap2.release();
+    cap3.release();
+
+    // Destroy the windows
+    cv::destroyAllWindows();
+
+    return;
+
+}
+
 void Stich2CAM(void){
 
-        Mat fr1, fr2, pano;
+        Mat fr1, fr2, fr3, pano;
     //bool try_use_gpu = true;
     vector<Mat> imgs;
-    VideoCapture cap(0, cv::CAP_V4L2), cap2(2, cv::CAP_V4L2);
-            cv::namedWindow("Stitched Image", cv::WINDOW_AUTOSIZE);
+    VideoCapture cap(0, cv::CAP_V4L2), cap2(2, cv::CAP_V4L2), cap3(4, cv::CAP_V4L2);
+            cv::namedWindow("Stitched Image", cv::WINDOW_NORMAL);
+            cv::resizeWindow("Stitched Image", 1920,1080);
+            // Set fps to 30fps
+    cap.set(cv::CAP_PROP_FPS, 30);
+    cap2.set(cv::CAP_PROP_FPS, 30);
+    cap3.set(cv::CAP_PROP_FPS, 30);
+
     while (true)
     {
         cap >> fr1;
         cap2 >> fr2;
+        cap3 >> fr3;
         imgs.push_back(fr1.clone());
         imgs.push_back(fr2.clone());
+        imgs.push_back(fr3.clone());
+
 
         cv::Ptr<Stitcher> test = cv::Stitcher::create(cv::Stitcher::PANORAMA);
         cv::Stitcher::Status status = test->stitch(imgs, pano);
@@ -244,96 +337,88 @@ void Stich2CAM(void){
 
     } 
     cap.release();
-    cap2.release();   
+    cap2.release();
+    cap3.release();   
     // Destroy the windows
     cv::destroyAllWindows();
     return;
 }
 
-int surf(void){
-    try {
-        // Capture frames from two cameras
-        Mat img1 = captureFrame(0);
-        Mat img2 = captureFrame(1);
+// Function to stitch two images
+cv::Mat stitchTwoImages(cv::Mat& img1, cv::Mat& img2) {
+    // Detect ORB features and descriptors
+    cv::Ptr<cv::ORB> orb = cv::ORB::create();
+    std::vector<cv::KeyPoint> keypoints1, keypoints2;
+    cv::Mat descriptors1, descriptors2;
+    orb->detectAndCompute(img1, cv::noArray(), keypoints1, descriptors1);
+    orb->detectAndCompute(img2, cv::noArray(), keypoints2, descriptors2);
 
-        if (img1.empty() || img2.empty()) {
-            cerr << "Error: One or both images are empty." << endl;
-            return -1;
-        }
+    // Match descriptors
+    cv::Ptr<cv::DescriptorMatcher> matcher = cv::DescriptorMatcher::create(cv::DescriptorMatcher::BRUTEFORCE_HAMMING);
+    std::vector<cv::DMatch> matches;
+    matcher->match(descriptors1, descriptors2, matches);
 
-        // Detect features and compute descriptors using SURF
-        vector<KeyPoint> keypoints1, keypoints2;
-        Mat descriptors1, descriptors2;
-        detectAndComputeSURF(img1, keypoints1, descriptors1);
-        detectAndComputeSURF(img2, keypoints2, descriptors2);
+    // Sort matches by distance
+    std::sort(matches.begin(), matches.end());
+    const int numGoodMatches = matches.size() * 0.15; // Retain top 15% matches
+    matches.erase(matches.begin() + numGoodMatches, matches.end());
 
-        if (keypoints1.empty() || keypoints2.empty()) {
-            cerr << "Error: No keypoints found in one or both images." << endl;
-            return -1;
-        }
-
-        // Match features using BFMatcher
-        BFMatcher matcher(NORM_L2);
-        vector<DMatch> matches;
-        matcher.match(descriptors1, descriptors2, matches);
-
-        // Check if matches are found
-        if (matches.empty()) {
-            cerr << "Error: No matches found." << endl;
-            return -1;
-        }
-
-        // Sort matches by distance
-        sort(matches.begin(), matches.end());
-
-        // Draw matches
-        Mat imgMatches;
-        drawMatches(img1, keypoints1, img2, keypoints2, matches, imgMatches);
-        imshow("Matches", imgMatches);
-        waitKey();
-
-        // Use RANSAC to find a homography matrix
-        vector<Point2f> pts1, pts2;
-        for (const auto& match : matches) {
-            pts1.push_back(keypoints1[match.queryIdx].pt);
-            pts2.push_back(keypoints2[match.trainIdx].pt);
-        }
-
-        if (pts1.size() < 4 || pts2.size() < 4) {
-            cerr << "Error: Not enough points for homography." << endl;
-            return -1;
-        }
-
-        Mat H = findHomography(pts1, pts2, RANSAC);
-
-        if (H.empty()) {
-            cerr << "Error: Homography matrix is empty." << endl;
-            return -1;
-        }
-
-        // Stitch images together
-        Mat result;
-        warpPerspective(img1, result, H, Size(img1.cols + img2.cols, img1.rows));
-        Mat half(result, Rect(0, 0, img2.cols, img2.rows));
-        img2.copyTo(half);
-
-        imshow("Stitched Image", result);
-        waitKey();
-
-    } catch (const exception& ex) {
-        cerr << "Error: " << ex.what() << endl;
-        return -1;
+    // Extract location of good matches
+    std::vector<cv::Point2f> points1, points2;
+    for (size_t i = 0; i < matches.size(); i++) {
+        points1.push_back(keypoints1[matches[i].queryIdx].pt);
+        points2.push_back(keypoints2[matches[i].trainIdx].pt);
     }
 
-    return 0;
+    // Find homography
+    cv::Mat H = cv::findHomography(points2, points1, cv::RANSAC);
+
+    // Warp image
+    cv::Mat result;
+    cv::warpPerspective(img2, result, H, cv::Size(img1.cols + img2.cols, img1.rows));
+    cv::Mat half(result, cv::Rect(0, 0, img1.cols, img1.rows));
+    img1.copyTo(half);
+
+    return result;
 }
 
+void surf(void){
+    // Open cameras
+    cv::VideoCapture cap1(0, cv::CAP_V4L2);
+    cv::VideoCapture cap2(2, cv::CAP_V4L2);
+    cv::VideoCapture cap3(4, cv::CAP_V4L2);
 
-void detectAndComputeSURF(Mat& img, vector<KeyPoint>& keypoints, Mat& descriptors) {
-    Ptr<SURF> detector = SURF::create(400);
-    if (img.empty()) {
-        cerr << "Error: Empty image passed to detectAndComputeSURF" << endl;
+    if (!cap1.isOpened() || !cap2.isOpened() || !cap3.isOpened()) {
+        std::cerr << "Error: Could not open one or more cameras" << std::endl;
         return;
     }
-    detector->detectAndCompute(img, noArray(), keypoints, descriptors);
+
+    // Capture frames from the cameras
+    cv::Mat frame1, frame2, frame3;
+    cap1 >> frame1;
+    cap2 >> frame2;
+    cap3 >> frame3;
+
+    // Resize images for faster processing
+    cv::resize(frame1, frame1, cv::Size(), 0.5, 0.5);
+    cv::resize(frame2, frame2, cv::Size(), 0.5, 0.5);
+    cv::resize(frame3, frame3, cv::Size(), 0.5, 0.5);
+    
+    // Stitch images pairwise
+    cv::Mat result12 = stitchTwoImages(frame1, frame2);
+    cv::Mat panorama = stitchTwoImages(result12, frame3);
+
+    // Display the result
+    cv::imshow("Panorama", panorama);
+    cv::waitKey(0);
+
+    // Release the cameras
+    cap1.release();
+    cap2.release();
+    cap3.release();
+
+        // Destroy the windows
+    cv::destroyAllWindows();
+
+    return;
 }
