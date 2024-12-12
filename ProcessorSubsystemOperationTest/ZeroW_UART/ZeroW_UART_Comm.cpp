@@ -64,7 +64,7 @@ int main(void){
     }
 
     // Read the serial port
-    Mat read_buf[]; // Allocating memory for read buffer
+    char read_buf[]; // Allocating memory for read buffer
 
     int n = read(serial_port, &read_buf, sizeof(read_buf)); // Number of bytes read
 
@@ -75,15 +75,12 @@ int main(void){
         return 0;
     }
 
-    // while (1)
-    // {
-    //     printf("Message received: %s\n", read_buf);
-    // }
+        printf("Message received: %s\n", read_buf);
 
-    namedWindow("Display Image", WINDOW_NORMAL );//gets display window & names it Display Image
-     imshow("Display Image", read_buf); //shows display window
+    // namedWindow("Display Image", WINDOW_NORMAL );//gets display window & names it Display Image
+    //  imshow("Display Image", read_buf); //shows display window
 
-    resizeWindow("Display Image", 1280,720); //sets size to 1080p
+    // resizeWindow("Display Image", 1280,720); //sets size to 1080p
 
     return 0;
 }

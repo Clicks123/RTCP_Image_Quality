@@ -64,18 +64,18 @@ int main(void){
         return 0;
     }
 
-    // // Send a message
-    // unsigned char msg[] = "Hello from Pi 5";
-    // while (1)
-    // {
-    //     write(serial_port, msg, sizeof(msg));
-    // }
+    // Send a message
+    unsigned char msg[] = "Hello from Pi 5";
+    while (1)
+    {
+        write(serial_port, msg, sizeof(msg));
+    }
 
-    std::string imagePath = "/home/5team4/Documents/RTCP/RTCP_Image_Quality/Pi5/catv2.png";
-    Mat image;
-    image = imread( imagePath, IMREAD_COLOR );
+    // std::string imagePath = "/home/5team4/Documents/RTCP/RTCP_Image_Quality/Pi5/catv2.png";
+    // Mat image;
+    // image = imread( imagePath, IMREAD_COLOR );
 
-    write(serial_port, image, sizeof(image));
+    // write(serial_port, image, sizeof(image));
 
     return 0;
 }
