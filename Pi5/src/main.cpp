@@ -2,6 +2,9 @@
 #include "opencv4/opencv2/opencv.hpp"
 #include <opencv2/core/core.hpp>
 #include <opencv2/stitching.hpp>
+//#include <opencv/opencv_contrib-4.x/modules/xfeatures2d/include/opencv2/xfeatures2d.hpp>
+#include <opencv2/xfeatures2d.hpp>
+//#include <opencv2/xfeatures2d/nonfree.hpp>
 #include <vector>
 //#include "config2/cameraMatrix.xml"
 //#include "config2/dist.xml"
@@ -22,9 +25,28 @@ void imgDispTest(void);
 void DispLiveWebcam(void);
 void Disp2LiveWebcam(void);
 void Stich2CAM(void);
+int surf(void);
+void detectAndComputeSURF(Mat& img, vector<KeyPoint>& keypoints, Mat& descriptors);
 
 using namespace cv;
+using namespace cv::xfeatures2d;
 using namespace std;
+
+
+Mat captureFrame(int cameraIndex) {
+    VideoCapture cap(cameraIndex);
+    if (!cap.isOpened()) {
+        cerr << "Error: Failed to open camera " << cameraIndex << endl;
+        return Mat();
+    }
+
+    Mat frame;
+    cap >> frame;
+    if (frame.empty()) {
+        cerr << "Error: Failed to capture frame from camera " << cameraIndex << endl;
+    }
+    return frame;
+}
 
 
 int main(int argc, char *argv[])
@@ -48,6 +70,9 @@ int main(int argc, char *argv[])
     }
     else if(strcmp(argv[1], "PANO") == 0){
         Stich2CAM();
+    }    
+    else if(strcmp(argv[1], "SURF") == 0){
+        surf();
     }
     else{
         printf("Unknown argument %s\n", argv[1]);
@@ -223,4 +248,92 @@ void Stich2CAM(void){
     // Destroy the windows
     cv::destroyAllWindows();
     return;
+}
+
+int surf(void){
+    try {
+        // Capture frames from two cameras
+        Mat img1 = captureFrame(0);
+        Mat img2 = captureFrame(1);
+
+        if (img1.empty() || img2.empty()) {
+            cerr << "Error: One or both images are empty." << endl;
+            return -1;
+        }
+
+        // Detect features and compute descriptors using SURF
+        vector<KeyPoint> keypoints1, keypoints2;
+        Mat descriptors1, descriptors2;
+        detectAndComputeSURF(img1, keypoints1, descriptors1);
+        detectAndComputeSURF(img2, keypoints2, descriptors2);
+
+        if (keypoints1.empty() || keypoints2.empty()) {
+            cerr << "Error: No keypoints found in one or both images." << endl;
+            return -1;
+        }
+
+        // Match features using BFMatcher
+        BFMatcher matcher(NORM_L2);
+        vector<DMatch> matches;
+        matcher.match(descriptors1, descriptors2, matches);
+
+        // Check if matches are found
+        if (matches.empty()) {
+            cerr << "Error: No matches found." << endl;
+            return -1;
+        }
+
+        // Sort matches by distance
+        sort(matches.begin(), matches.end());
+
+        // Draw matches
+        Mat imgMatches;
+        drawMatches(img1, keypoints1, img2, keypoints2, matches, imgMatches);
+        imshow("Matches", imgMatches);
+        waitKey();
+
+        // Use RANSAC to find a homography matrix
+        vector<Point2f> pts1, pts2;
+        for (const auto& match : matches) {
+            pts1.push_back(keypoints1[match.queryIdx].pt);
+            pts2.push_back(keypoints2[match.trainIdx].pt);
+        }
+
+        if (pts1.size() < 4 || pts2.size() < 4) {
+            cerr << "Error: Not enough points for homography." << endl;
+            return -1;
+        }
+
+        Mat H = findHomography(pts1, pts2, RANSAC);
+
+        if (H.empty()) {
+            cerr << "Error: Homography matrix is empty." << endl;
+            return -1;
+        }
+
+        // Stitch images together
+        Mat result;
+        warpPerspective(img1, result, H, Size(img1.cols + img2.cols, img1.rows));
+        Mat half(result, Rect(0, 0, img2.cols, img2.rows));
+        img2.copyTo(half);
+
+        imshow("Stitched Image", result);
+        waitKey();
+
+    } catch (const exception& ex) {
+        cerr << "Error: " << ex.what() << endl;
+        return -1;
+    }
+
+    return 0;
+}
+
+
+void detectAndComputeSURF(Mat& img, vector<KeyPoint>& keypoints, Mat& descriptors) {
+    Ptr<SURF> detector = SURF::create(400);
+    if (img.empty()) {
+        cerr << "Error: Empty image passed to detectAndComputeSURF" << endl;
+        return;
+    }
+    detector->detectAndCompute(img, noArray(), keypoints, descriptors);
 }

@@ -427,8 +427,12 @@ CMakeFiles/output.dir/src/main.cpp.o: src/main.cpp \
   /usr/include/opencv4/opencv2/video/background_segm.hpp \
   /usr/include/opencv4/opencv2/videoio.hpp \
   /usr/include/opencv4/opencv2/core/core.hpp \
-  /usr/include/opencv4/opencv2/stitching.hpp
+  /usr/include/opencv4/opencv2/stitching.hpp \
+  /usr/include/opencv2/xfeatures2d.hpp \
+  /usr/include/opencv2/xfeatures2d/nonfree.hpp
 
+
+/usr/include/opencv2/xfeatures2d/nonfree.hpp:
 
 /usr/include/opencv4/opencv2/core/core.hpp:
 
@@ -809,6 +813,8 @@ CMakeFiles/output.dir/src/main.cpp.o: src/main.cpp \
 /usr/include/aarch64-linux-gnu/bits/timex.h:
 
 /usr/include/c++/12/streambuf:
+
+/usr/include/opencv2/xfeatures2d.hpp:
 
 /usr/include/wchar.h:
 
